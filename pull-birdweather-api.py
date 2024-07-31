@@ -3,6 +3,20 @@ import requests
 import json
 from datetime import datetime, timedelta, timezone
 
+
+def build_config():
+    token = input("Enter the token: ")
+    station = input("Enter the station: ")
+
+    config = {
+        "token": token,
+        "station": station
+    }
+
+    with open('config.json', 'w') as config_file:
+        json.dump(config, config_file, indent=4)
+
+
 def get_species_data(station, token, hours):
     hours_ago = datetime.now(timezone.utc) - timedelta(hours=hours)
     since = hours_ago.isoformat()
@@ -37,8 +51,7 @@ def get_last_5_detections(station, token):
         for detection in data["detections"]:
             print(detection["species"]["commonName"], detection["timestamp"])
     else:
-        print("Key 'detections' not found in the response data.")
-    print("\n")
+        print("Key 'detections' not found in the response data.\n")
     ##########################################################################
     if "detections" in data:
         species_count = {}
@@ -67,6 +80,13 @@ def get_last_5_detections(station, token):
         print("Key 'detections' not found in the response data.")
 
 if __name__ == "__main__":
+
+    # if the config file doesn't exist, create it by running the build_config function
+    try:
+        with open('config.json') as config_file:
+            pass
+    except FileNotFoundError:
+        build_config()
 
     # Read the token from the config file
     with open('config.json') as config_file:
